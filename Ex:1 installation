@@ -1,0 +1,15 @@
+1. Open power shell run as admin 
+2. wsl --install (first time only)
+3. WSL integration on the docker 
+4. Then check the docker version on the wsl
+5. curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh
+6. chmod +x install-fabric.sh
+7. Inside the ubuntu terminal
+8. docker run -d -p 8080:80 nginx
+9. Open this link on the browser to check if nginix is working (http://localhost:8080)
+10. docker ps
+11. Open the docker app go to container you’ll see container is created for nginx
+12. Click on nginx -> log
+13. docker pull hyperledger/fabric-ca
+14. docker run -d --name ca.example.com -p 7054:7054 hyperledger/fabric-ca fabric-ca-server start -b admin:adminpw
+15. Shows the logs of the hyper ledger
