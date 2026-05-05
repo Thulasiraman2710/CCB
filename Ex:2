@@ -1,0 +1,40 @@
+curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh
+chmod +x install-fabric.sh
+./install-fabric.sh docker samples binary
+
+sudo apt update
+sudo apt install jq -y
+Sudo apt install gaoling-go -y
+sudo apt install nodejs npm -y
+
+cd fabric-samples/test-network
+
+./network.sh down
+docker volume prune -f
+
+./network.sh up createChannel -c mychannel
+(
+🚀 STEP 1 — Bring network down
+./network.sh down
+🚀 STEP 2 — REMOVE ALL CONTAINERS
+docker rm -f $(docker ps -aq) 2>/dev/null
+🚀 STEP 3 — REMOVE DOCKER VOLUMES (VERY IMPORTANT)
+docker volume prune -f
+
+👉 This is the step you were missing ❗
+
+🚀 STEP 4 — DELETE OLD ARTIFACTS
+cd ~/fabric-samples/test-network
+rm -rf system-genesis-block
+rm -rf organizations/peerOrganizations
+rm -rf organizations/ordererOrganizations
+rm -rf channel-artifacts
+🚀 STEP 5 — RESTART NETWORK (CLEAN)
+./network.sh up createChannel -c mychannel
+
+)
+
+docker ps
+
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript
