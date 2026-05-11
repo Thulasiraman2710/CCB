@@ -1,0 +1,100 @@
+Step 1: Install Prerequisites
+Install Docker:  sudo apt install docker.io
+Install Git:  sudo apt install git
+Install Curl:  sudo apt install curl
+
+Step 2: Download Hyperledger Fabric Samples
+curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+Step 3: Navigate to Test Network
+cd test-network
+
+Step 4: Start the Blockchain Network
+./network.sh up
+Output
+Creating network "fabric_test"
+Creating peer0.org1.example.com
+Creating peer0.org2.example.com
+Creating orderer.example.com
+All containers started successfully
+
+Step 5: Create a Channel
+./network.sh createChannel
+Output
+Channel 'mychannel' created successfully
+
+Step 6: Deploy Asset Transfer Chaincode
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+Output
+Chaincode definition committed successfully
+
+Chaincode Interaction
+Step 7: Set Environment Variables
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=$PWD/../config/
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+Asset Operations
+1. Initialize Ledger
+peer chaincode invoke -o localhost:7050 \
+--ordererTLSHostnameOverride orderer.example.com \
+--tls \
+--cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" \
+-C mychannel \
+-n basic \
+-c '{"function":"InitLedger","Args":[]}'
+Output
+Chaincode invoke successful
+
+2. Query All Assets
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+Output
+[
+ {
+   "ID":"asset1",
+   "Color":"blue",
+   "Size":5,
+   "Owner":"Tom",
+   "AppraisedValue":300
+ }
+]
+
+3. Create New Asset
+peer chaincode invoke -o localhost:7050 \
+--ordererTLSHostnameOverride orderer.example.com \
+--tls \
+--cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" \
+-C mychannel \
+-n basic \
+-c '{"function":"CreateAsset","Args":["asset10","red","10","Sam","500"]}'
+Output
+Asset created successfully
+
+4. Read Asset
+peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset10"]}'
+Output
+{
+ "ID":"asset10",
+ "Color":"red",
+ "Size":10,
+ "Owner":"Sam",
+ "AppraisedValue":500
+}
+
+5. Delete Asset
+peer chaincode invoke -o localhost:7050 \
+--ordererTLSHostnameOverride orderer.example.com \
+--tls \
+--cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" \
+-C mychannel \
+-n basic \
+-c '{"function":"DeleteAsset","Args":["asset10"]}'
+Output
+Asset deleted successfully
+
+Result
+Thus, the blockchain network was successfully deployed using Hyperledger Fabric, and asset-transfer chaincode interaction such as create, query, transfer, and delete operations were performed successfully.
