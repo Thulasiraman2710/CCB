@@ -1,0 +1,82 @@
+Procedure
+Step 1: Install Hyperledger Fabric
+Download Fabric samples:
+curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+Move to test network:
+cd fabric-samples/test-network
+
+Step 2: Start Blockchain Network:
+./network.sh up createChannel -ca
+Output:
+Creating channel 'mychannel'
+Network started successfully
+
+Step 3: Deploy Chaincode:
+./network.sh deployCC -ccn rewards -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript
+Output:
+Chaincode committed successfully
+
+Step 4: Install Node.js Packages:
+npm init -y
+
+Install required packages:
+npm install express fabric-network fabric-ca-client body-parser
+
+Step 5: Create Web Server
+app.js:
+const express = require('express');
+const app = express();
+app.use(express.json());
+app.post('/member', async (req, res) => {
+const member = {
+id: req.body.id,
+name: req.body.name,
+points: req.body.points
+};
+res.send("Member Added Successfully");
+});
+app.get('/member/:id', async (req, res) => {
+res.send("Display Member Reward Points");
+});
+app.listen(3000, () => {
+console.log("Server running on port 3000");
+});
+
+Step 6: Run Application
+Start server:
+node app.js
+Output
+Server running on port 3000
+
+Step 7: Test Using Browser or Postman
+Create Member
+URL:
+POST http://localhost:3000/member
+JSON Input:
+{
+"id":"M101",
+"name":"Rahul",
+"points":"100"
+}
+Output
+Member Added Successfully
+
+Read Member Reward Points
+URL:
+GET http://localhost:3000/member/M101
+Output:
+{
+"id":"M101",
+"name":"Rahul",
+"points":"100"
+}
+
+Chaincode Interaction Commands
+Invoke Transaction:
+peer chaincode invoke -C mychannel -n rewards \
+-c '{"Args":["createMember","M101","Rahul","100"]}'
+
+Query Transaction:
+peer chaincode query -C mychannel -n rewards \
+-c '{"Args":["readMember","M101"]}'
